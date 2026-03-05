@@ -233,18 +233,6 @@
     <a href="/">Retour au site</a>
   </nav>
 
-  <main class="admin-main">
-    <div class="admin-header">
-      <div>
-        <h1>Tableau de bord</h1>
-        <p>Gestion des inscriptions — Hackathon L1 2025</p>
-      </div>
-      <div>
-        <button class="refresh-btn" onclick="loadData()">Actualiser</button>
-        <button class="export-btn" onclick="exportCSV()">Exporter CSV</button>
-      </div>
-    </div>
-
     <div class="toolbar">
       <div class="section-label">Toutes les inscriptions</div>
       <input type="text" class="search-bar" id="search-input" placeholder="Rechercher un participant..." oninput="filterTable()" />
@@ -278,11 +266,12 @@
   </main>
 
   <script>
+    const BACKEND_URL = 'https://hark-inst.onrender.com';
     let allData = [];
 
     async function loadData() {
       try {
-        const res = await fetch('/api/admin/registrations');
+        const res = await fetch(`${BACKEND_URL}/api/admin/registrations`);
         const data = await res.json();
         allData = data.registrations || [];
         renderStats(data);
