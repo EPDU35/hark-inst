@@ -233,6 +233,41 @@
     <a href="/">Retour au site</a>
   </nav>
 
+  <main class="admin-main">
+    <div class="admin-header">
+      <div>
+        <h1>Tableau de bord</h1>
+        <p>Gestion des inscriptions — Hackathon L1 2025</p>
+      </div>
+      <div>
+        <button class="refresh-btn" onclick="loadData()">Actualiser</button>
+        <button class="export-btn" onclick="exportCSV()">Exporter CSV</button>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="s-label">Inscrits total</div>
+        <div class="s-value" id="stat-total">—</div>
+        <div class="s-sub">participants enregistrés</div>
+      </div>
+      <div class="stat-card">
+        <div class="s-label">Équipes</div>
+        <div class="s-value" id="stat-teams">—</div>
+        <div class="s-sub">inscriptions en groupe</div>
+      </div>
+      <div class="stat-card">
+        <div class="s-label">Solos</div>
+        <div class="s-value" id="stat-solos">—</div>
+        <div class="s-sub">inscriptions individuelles</div>
+      </div>
+      <div class="stat-card">
+        <div class="s-label">Revenus</div>
+        <div class="s-value" id="stat-revenue">—</div>
+        <div class="s-sub">XOF collectés</div>
+      </div>
+    </div>
+
     <div class="toolbar">
       <div class="section-label">Toutes les inscriptions</div>
       <input type="text" class="search-bar" id="search-input" placeholder="Rechercher un participant..." oninput="filterTable()" />
@@ -269,29 +304,35 @@
     const BACKEND_URL = 'https://hark-inst.onrender.com';
     let allData = [];
 
+    function setEl(id, val) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val;
+    }
+
     async function loadData() {
       try {
         const res = await fetch(`${BACKEND_URL}/api/admin/registrations`);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
         allData = data.registrations || [];
         renderStats(data);
         renderTable(allData);
-      } catch {
+      } catch (err) {
         allData = [];
         renderTable([]);
-        document.getElementById('stat-total').textContent = '0';
-        document.getElementById('stat-teams').textContent = '0';
-        document.getElementById('stat-solos').textContent = '0';
-        document.getElementById('stat-revenue').textContent = '0';
+        setEl('stat-total', '—');
+        setEl('stat-teams', '—');
+        setEl('stat-solos', '—');
+        setEl('stat-revenue', '—');
+        console.error('Erreur chargement:', err.message);
       }
     }
 
     function renderStats(data) {
-      document.getElementById('stat-total').textContent = data.total || 0;
-      document.getElementById('stat-teams').textContent = data.groups || 0;
-      document.getElementById('stat-solos').textContent = data.solos || 0;
-      const rev = (data.revenue || 0).toLocaleString('fr-FR');
-      document.getElementById('stat-revenue').textContent = rev;
+      setEl('stat-total', data.total || 0);
+      setEl('stat-teams', data.groups || 0);
+      setEl('stat-solos', data.solos || 0);
+      setEl('stat-revenue', (data.revenue || 0).toLocaleString('fr-FR'));
     }
 
     function renderTable(rows) {
