@@ -1,0 +1,12 @@
+{
+  "name": "hackathon-l1",
+  "version": "1.0.0",
+  "description": "Site inscription Hackathon L1 - Eliel Poster x BDE MIAGE-GI",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

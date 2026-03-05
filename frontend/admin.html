@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Hackathon L1</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #0a0a0a; --white: #f5f2ed; --accent: #d32f2f;
+      --gray-1: #1a1a1a; --gray-2: #2a2a2a; --gray-3: #444;
+      --gray-4: #888; --gray-5: #bbb;
+      --green: #4dff91; --red: #ff4444; --orange: #ffaa44;
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+    }
+    body { background: var(--black); color: var(--white); font-family: var(--font-body); }
+
+    .admin-nav {
+      background: var(--gray-1);
+      border-bottom: 1px solid var(--gray-2);
+      padding: 0 32px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .admin-nav .brand { font-family: var(--font-display); font-size: 20px; letter-spacing: 0.05em; }
+    .admin-nav .brand span { color: var(--accent); }
+    .admin-nav a { color: var(--gray-4); font-size: 13px; text-decoration: none; }
+    .admin-nav a:hover { color: var(--white); }
+
+    .admin-main { max-width: 1400px; margin: 0 auto; padding: 40px 24px; }
+
+    .admin-header {
+      margin-bottom: 48px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .admin-header h1 { font-family: var(--font-display); font-size: 52px; letter-spacing: 0.03em; }
+    .admin-header p { color: var(--gray-4); font-size: 14px; margin-top: 6px; }
+
+    .refresh-btn {
+      background: var(--accent); color: var(--black);
+      border: none; border-radius: 4px;
+      padding: 10px 24px; font-family: var(--font-body);
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .refresh-btn:hover { background: #b71c1c; }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+
+    .stat-card {
+      background: var(--gray-1);
+      border: 1px solid var(--gray-2);
+      border-radius: 8px;
+      padding: 24px;
+    }
+    .stat-card .s-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gray-4);
+      margin-bottom: 10px;
+    }
+    .stat-card .s-value {
+      font-family: var(--font-display);
+      font-size: 48px;
+      line-height: 1;
+      color: var(--white);
+    }
+    .stat-card .s-sub {
+      font-size: 13px;
+      color: var(--gray-4);
+      margin-top: 6px;
+    }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--gray-4);
+      margin-bottom: 20px;
+    }
+
+    .search-bar {
+      background: var(--gray-1);
+      border: 1px solid var(--gray-2);
+      border-radius: 4px;
+      color: var(--white);
+      font-family: var(--font-body);
+      font-size: 14px;
+      padding: 10px 16px;
+      width: 280px;
+      outline: none;
+      margin-bottom: 20px;
+      transition: border-color 0.2s;
+    }
+    .search-bar:focus { border-color: var(--accent); }
+    .search-bar::placeholder { color: var(--gray-3); }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--gray-2);
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      table-layout: auto;
+    }
+
+    thead tr {
+      background: var(--gray-2);
+      border-bottom: 1px solid var(--gray-3);
+    }
+
+    th {
+      padding: 12px 14px;
+      text-align: left;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--gray-4);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--gray-2);
+      vertical-align: top;
+      color: var(--gray-5);
+      max-width: 160px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    td.teammates-cell { white-space: normal; max-width: 120px; }
+
+    tr:last-child td { border-bottom: none; }
+
+    tbody tr:hover td { background: rgba(255,255,255,0.02); }
+
+    td.name { color: var(--white); font-weight: 500; }
+    td.ref { font-family: var(--font-mono); font-size: 12px; color: var(--accent); }
+    td.amount { font-family: var(--font-mono); font-weight: 500; color: var(--white); }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .badge-solo { background: rgba(136,136,136,0.15); color: var(--gray-4); }
+    .badge-groupe { background: rgba(211,47,47,0.1); color: var(--accent); }
+    .badge-paid { background: rgba(77,255,145,0.1); color: var(--green); }
+    .badge-pending { background: rgba(255,170,68,0.1); color: var(--orange); }
+
+    .teammates-list { font-size: 13px; color: var(--gray-4); }
+    .teammates-list span { display: block; }
+
+    .empty-state {
+      text-align: center;
+      padding: 80px 0;
+      color: var(--gray-4);
+    }
+    .empty-state h3 {
+      font-family: var(--font-display);
+      font-size: 32px;
+      letter-spacing: 0.03em;
+      margin-bottom: 8px;
+      color: var(--gray-3);
+    }
+
+    .export-btn {
+      background: transparent;
+      border: 1px solid var(--gray-3);
+      border-radius: 4px;
+      color: var(--gray-4);
+      padding: 10px 20px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-left: 12px;
+    }
+    .export-btn:hover { border-color: var(--white); color: var(--white); }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .admin-main { padding: 24px 16px; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .search-bar { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="admin-nav">
+    <div class="brand">ADMIN <span>HACKATHON L1</span></div>
+    <a href="/">Retour au site</a>
+  </nav>
+
+  <main class="admin-main">
+    <div class="admin-header">
+      <div>
+        <h1>Tableau de bord</h1>
+        <p>Gestion des inscriptions — Hackathon L1 2025</p>
+      </div>
+      <div>
+        <button class="refresh-btn" onclick="loadData()">Actualiser</button>
+        <button class="export-btn" onclick="exportCSV()">Exporter CSV</button>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="section-label">Toutes les inscriptions</div>
+      <input type="text" class="search-bar" id="search-input" placeholder="Rechercher un participant..." oninput="filterTable()" />
+    </div>
+
+    <div class="table-wrap">
+      <table id="registrations-table">
+        <thead>
+          <tr>
+            <th>Référence</th>
+            <th>Nom complet</th>
+            <th>Email</th>
+            <th>Mode</th>
+            <th>Coéquipiers</th>
+            <th>Paiement</th>
+            <th>Montant</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+          <tr>
+            <td colspan="8">
+              <div class="empty-state">
+                <h3>Chargement...</h3>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    let allData = [];
+
+    async function loadData() {
+      try {
+        const res = await fetch('/api/admin/registrations');
+        const data = await res.json();
+        allData = data.registrations || [];
+        renderStats(data);
+        renderTable(allData);
+      } catch {
+        allData = [];
+        renderTable([]);
+        document.getElementById('stat-total').textContent = '0';
+        document.getElementById('stat-teams').textContent = '0';
+        document.getElementById('stat-solos').textContent = '0';
+        document.getElementById('stat-revenue').textContent = '0';
+      }
+    }
+
+    function renderStats(data) {
+      document.getElementById('stat-total').textContent = data.total || 0;
+      document.getElementById('stat-teams').textContent = data.groups || 0;
+      document.getElementById('stat-solos').textContent = data.solos || 0;
+      const rev = (data.revenue || 0).toLocaleString('fr-FR');
+      document.getElementById('stat-revenue').textContent = rev;
+    }
+
+    function renderTable(rows) {
+      const tbody = document.getElementById('table-body');
+      if (!rows.length) {
+        tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><h3>Aucune inscription</h3><p>Les inscriptions apparaîtront ici.</p></div></td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = rows.map(r => {
+        const teammates = r.teammates && r.teammates.length
+          ? r.teammates.map(t => `<span>${t.prenom} ${t.nom}</span>`).join('')
+          : '<span style="color:#444">—</span>';
+
+        const modeBadge = r.mode === 'solo' ? 'badge-solo' : 'badge-groupe';
+        const modeLabel = r.mode === 'solo' ? 'Solo' : 'Groupe';
+        const payBadge = r.paid ? 'badge-paid' : 'badge-pending';
+        const payLabel = r.paid ? 'Confirmé' : 'En attente';
+
+        const date = new Date(r.created_at).toLocaleDateString('fr-FR', {
+          day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+        });
+
+        return `
+          <tr>
+            <td class="ref">${r.reference}</td>
+            <td class="name">${r.prenom} ${r.nom}</td>
+            <td>${r.email}</td>
+            <td><span class="badge ${modeBadge}">${modeLabel}</span></td>
+            <td class="teammates-cell"><div class="teammates-list">${teammates}</div></td>
+            <td><span class="badge ${payBadge}">${payLabel}</span></td>
+            <td class="amount">${(r.total || 0).toLocaleString('fr-FR')} XOF</td>
+            <td>${date}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterTable() {
+      const query = document.getElementById('search-input').value.toLowerCase();
+      const filtered = allData.filter(r =>
+        `${r.nom} ${r.prenom} ${r.email} ${r.reference}`.toLowerCase().includes(query)
+      );
+      renderTable(filtered);
+    }
+
+    function exportCSV() {
+      if (!allData.length) return alert('Aucune donnée à exporter.');
+
+      const headers = ['Référence', 'Nom', 'Prénom', 'Email', 'Téléphone', 'Mode', 'Coéquipiers', 'Paiement', 'Montant (XOF)', 'Date'];
+      const rows = allData.map(r => [
+        r.reference,
+        r.nom,
+        r.prenom,
+        r.email,
+        r.tel || '',
+        r.mode,
+        (r.teammates || []).map(t => `${t.prenom} ${t.nom}`).join(' / '),
+        r.paid ? 'Confirmé' : 'En attente',
+        r.total || 0,
+        new Date(r.created_at).toLocaleString('fr-FR')
+      ]);
+
+      const csv = [headers, ...rows].map(row => row.map(v => `"${v}"`).join(',')).join('\n');
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `inscriptions_hackathon_${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    loadData();
+  </script>
+</body>
+</html>
