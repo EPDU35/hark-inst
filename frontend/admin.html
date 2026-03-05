@@ -3,280 +3,606 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hackathon L1 — Eliel Poster x BDE MIAGE-GI</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Admin — Hackathon L1</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #0a0a0a; --white: #f5f2ed; --accent: #d32f2f;
+      --accent-dim: #b71c1c;
+      --gray-1: #1a1a1a; --gray-2: #2a2a2a; --gray-3: #444;
+      --gray-4: #888; --gray-5: #bbb;
+      --green: #4dff91; --red: #ff4444; --orange: #ffaa44;
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+    }
+    body { background: var(--black); color: var(--white); font-family: var(--font-body); min-height: 100vh; }
+
+    .login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background-image:
+        linear-gradient(rgba(211,47,47,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(211,47,47,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    .login-box {
+      background: var(--gray-1);
+      border: 1px solid var(--gray-2);
+      border-radius: 12px;
+      padding: 52px 44px;
+      width: 100%;
+      max-width: 400px;
+      animation: fade-up 0.5s ease both;
+    }
+
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: var(--accent);
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 16px;
+    }
+
+    .login-box h1 {
+      font-family: var(--font-display);
+      font-size: 40px;
+      letter-spacing: 0.03em;
+      margin-bottom: 8px;
+    }
+
+    .login-box p { font-size: 13px; color: var(--gray-4); margin-bottom: 36px; }
+
+    .login-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+
+    .login-group label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--gray-5);
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .login-group input {
+      background: var(--gray-2);
+      border: 1px solid var(--gray-3);
+      border-radius: 4px;
+      color: var(--white);
+      font-family: var(--font-body);
+      font-size: 15px;
+      padding: 13px 16px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      width: 100%;
+    }
+
+    .login-group input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(211,47,47,0.1);
+    }
+
+    .login-error {
+      font-size: 12px;
+      color: var(--red);
+      font-family: var(--font-mono);
+      min-height: 18px;
+      display: block;
+      margin-bottom: 16px;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--accent);
+      color: var(--white);
+      border: none;
+      border-radius: 4px;
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+      letter-spacing: 0.03em;
+    }
+    .login-btn:hover { background: var(--accent-dim); transform: translateY(-1px); }
+    .login-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .wakeup-screen {
+      min-height: 100vh;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      padding: 24px;
+    }
+
+    .wakeup-spinner {
+      width: 40px; height: 40px;
+      border: 3px solid var(--gray-2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .wakeup-text {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--gray-4);
+      text-align: center;
+      line-height: 1.8;
+    }
+    .wakeup-text strong { color: var(--white); display: block; font-size: 16px; margin-bottom: 4px; }
+
+    .wakeup-dots span {
+      display: inline-block;
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      margin: 0 3px;
+      animation: dot-bounce 1.2s ease-in-out infinite;
+    }
+    .wakeup-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .wakeup-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes dot-bounce {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    .admin-app { display: none; }
+
+    .admin-nav {
+      background: var(--gray-1);
+      border-bottom: 1px solid var(--gray-2);
+      padding: 0 32px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .admin-nav .brand { font-family: var(--font-display); font-size: 20px; letter-spacing: 0.05em; }
+    .admin-nav .brand span { color: var(--accent); }
+    .admin-nav-right { display: flex; align-items: center; gap: 20px; }
+    .admin-nav a { color: var(--gray-4); font-size: 13px; text-decoration: none; transition: color 0.2s; }
+    .admin-nav a:hover { color: var(--white); }
+
+    .logout-btn {
+      background: none;
+      border: 1px solid var(--gray-3);
+      border-radius: 4px;
+      color: var(--gray-4);
+      font-size: 12px;
+      font-family: var(--font-mono);
+      padding: 6px 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .logout-btn:hover { border-color: var(--red); color: var(--red); }
+
+    .admin-main { max-width: 1400px; margin: 0 auto; padding: 40px 24px; }
+
+    .admin-header {
+      margin-bottom: 48px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .admin-header h1 { font-family: var(--font-display); font-size: 52px; letter-spacing: 0.03em; }
+    .admin-header p { color: var(--gray-4); font-size: 14px; margin-top: 6px; }
+    .header-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .refresh-btn {
+      background: var(--accent); color: var(--white);
+      border: none; border-radius: 4px;
+      padding: 10px 24px; font-family: var(--font-body);
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .refresh-btn:hover { background: var(--accent-dim); }
+
+    .export-btn {
+      background: transparent;
+      border: 1px solid var(--gray-3);
+      border-radius: 4px;
+      color: var(--gray-4);
+      padding: 10px 20px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .export-btn:hover { border-color: var(--white); color: var(--white); }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+
+    .stat-card {
+      background: var(--gray-1);
+      border: 1px solid var(--gray-2);
+      border-radius: 8px;
+      padding: 24px;
+      transition: border-color 0.2s;
+    }
+    .stat-card:hover { border-color: var(--gray-3); }
+    .stat-card .s-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gray-4);
+      margin-bottom: 10px;
+    }
+    .stat-card .s-value { font-family: var(--font-display); font-size: 48px; line-height: 1; color: var(--white); }
+    .stat-card .s-sub { font-size: 13px; color: var(--gray-4); margin-top: 6px; }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--gray-4);
+    }
+
+    .search-bar {
+      background: var(--gray-1);
+      border: 1px solid var(--gray-2);
+      border-radius: 4px;
+      color: var(--white);
+      font-family: var(--font-body);
+      font-size: 14px;
+      padding: 10px 16px;
+      width: 280px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-bar:focus { border-color: var(--accent); }
+    .search-bar::placeholder { color: var(--gray-3); }
+
+    .table-wrap { overflow-x: auto; border: 1px solid var(--gray-2); border-radius: 8px; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+
+    thead tr { background: var(--gray-2); border-bottom: 1px solid var(--gray-3); }
+
+    th {
+      padding: 12px 14px;
+      text-align: left;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--gray-4);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--gray-2);
+      vertical-align: middle;
+      color: var(--gray-5);
+      max-width: 160px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    td.teammates-cell { white-space: normal; max-width: 120px; }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: rgba(255,255,255,0.02); }
+    td.name { color: var(--white); font-weight: 500; }
+    td.ref { font-family: var(--font-mono); font-size: 12px; color: var(--accent); }
+    td.amount { font-family: var(--font-mono); font-weight: 500; color: var(--white); }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .badge-solo { background: rgba(136,136,136,0.15); color: var(--gray-4); }
+    .badge-groupe { background: rgba(211,47,47,0.1); color: var(--accent); }
+    .badge-paid { background: rgba(77,255,145,0.1); color: var(--green); }
+    .badge-pending { background: rgba(255,170,68,0.1); color: var(--orange); }
+
+    .teammates-list { font-size: 12px; color: var(--gray-4); }
+    .teammates-list span { display: block; }
+
+    .empty-state { text-align: center; padding: 80px 0; color: var(--gray-4); }
+    .empty-state h3 {
+      font-family: var(--font-display);
+      font-size: 32px;
+      letter-spacing: 0.03em;
+      margin-bottom: 8px;
+      color: var(--gray-3);
+    }
+
+    @media (max-width: 900px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) {
+      .admin-main { padding: 24px 16px; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .search-bar { width: 100%; }
+      .admin-nav { padding: 0 16px; }
+      .login-box { padding: 36px 24px; }
+    }
+  </style>
 </head>
 <body>
 
-  <div class="noise-overlay"></div>
-
-  <nav class="navbar">
-    <div class="nav-inner">
-      <div class="nav-brand">
-        <span class="brand-dot"></span>
-        <span>HACKATHON<span class="brand-accent"> L1</span></span>
+  <div class="login-screen" id="login-screen">
+    <div class="login-box">
+      <span class="login-tag">Accès restreint</span>
+      <h1>Espace Admin</h1>
+      <p>Hackathon L1 — Langues Locales 2025</p>
+      <div class="login-group">
+        <label>Mot de passe</label>
+        <input type="password" id="login-input" placeholder="••••••••"
+          onkeydown="if(event.key==='Enter') doLogin()" autofocus />
       </div>
-      <div class="nav-links">
-        <a href="#about">À propos</a>
-        <a href="#inscription" class="nav-cta">S'inscrire</a>
-      </div>
-    </div>
-  </nav>
-
-  <section class="hero">
-    <div class="hero-grid-bg"></div>
-    <div class="hero-content">
-      <div class="hero-tag">
-        <span class="tag-dot"></span>
-        Licence 1 · 2025
-      </div>
-      <h1 class="hero-title">
-        <span class="line-reveal">HACK</span>
-        <span class="line-reveal delay-1">THE</span>
-        <span class="line-reveal delay-2 accent-line">FUTURE</span>
-      </h1>
-      <p class="hero-sub">
-        Rejoins le premier hackathon organisé pour les étudiants L1.<br />
-        48 heures pour innover, construire, impressionner.
-      </p>
-      <div class="hero-actions">
-        <a href="#inscription" class="btn-primary">Rejoindre l'événement</a>
-        <a href="#about" class="btn-ghost">En savoir plus</a>
-      </div>
-    </div>
-    <div class="hero-stats">
-      <div class="stat-item">
-        <span class="stat-num" data-target="48">0</span>
-        <span class="stat-label">Heures</span>
-      </div>
-      <div class="stat-sep"></div>
-      <div class="stat-item">
-        <span class="stat-num" data-target="1000">0</span>
-        <span class="stat-label">XOF / pers.</span>
-      </div>
-      <div class="stat-sep"></div>
-      <div class="stat-item">
-        <span class="stat-num" data-target="3">0</span>
-        <span class="stat-label">Max / équipe</span>
-      </div>
-    </div>
-  </section>
-
-  <section class="about" id="about">
-    <div class="container">
-      <div class="section-header">
-        <span class="section-tag">01 — ÉVÉNEMENT</span>
-        <h2 class="section-title">Ce qui t'attend</h2>
-      </div>
-      <div class="about-grid">
-        <div class="about-card">
-          <div class="card-num">01</div>
-          <h3>Solo ou en équipe</h3>
-          <p>Participe seul ou forme une équipe de 2 à 3 personnes. Chaque profil a sa chance.</p>
-        </div>
-        <div class="about-card">
-          <div class="card-num">02</div>
-          <h3>Un défi réel</h3>
-          <p>Un sujet concret dévoilé le jour J. 48 heures pour proposer une solution fonctionnelle.</p>
-        </div>
-        <div class="about-card">
-          <div class="card-num">03</div>
-          <h3>Mentorat et jury</h3>
-          <p>Des mentors disponibles et un jury professionnel pour évaluer vos projets.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="inscription-section" id="inscription">
-    <div class="container">
-      <div class="section-header">
-        <span class="section-tag">02 — INSCRIPTION</span>
-        <h2 class="section-title">Réserve ta place</h2>
-      </div>
-
-      <div class="form-wrapper">
-        <form id="registrationForm" novalidate>
-
-          <div class="form-block">
-            <h3 class="form-block-title">Informations personnelles</h3>
-            <div class="form-row">
-              <div class="form-group">
-                <label for="nom">Nom</label>
-                <input type="text" id="nom" name="nom" placeholder="Votre nom" required />
-                <span class="field-error" id="err-nom"></span>
-              </div>
-              <div class="form-group">
-                <label for="prenom">Prénom</label>
-                <input type="text" id="prenom" name="prenom" placeholder="Votre prénom" required />
-                <span class="field-error" id="err-prenom"></span>
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" placeholder="votre@email.com" required />
-                <span class="field-error" id="err-email"></span>
-              </div>
-              <div class="form-group">
-                <label for="tel">Téléphone</label>
-                <input type="tel" id="tel" name="tel" placeholder="+225 00 00 00 00 00" />
-              </div>
-            </div>
-          </div>
-
-          <div class="form-block">
-            <h3 class="form-block-title">Mode de participation</h3>
-            <div class="participation-toggle">
-              <button type="button" class="toggle-btn active" data-mode="solo" id="btn-solo">
-                <span class="toggle-icon solo-icon"></span>
-                Solo
-              </button>
-              <button type="button" class="toggle-btn" data-mode="groupe" id="btn-groupe">
-                <span class="toggle-icon group-icon"></span>
-                Groupe
-              </button>
-            </div>
-            <input type="hidden" id="mode" name="mode" value="solo" />
-          </div>
-
-          <div class="form-block team-block hidden" id="team-block">
-            <h3 class="form-block-title">Membres de l'équipe</h3>
-            <p class="team-note">Ajoutez jusqu'à 2 coéquipiers (optionnel).</p>
-
-            <div class="teammate-entry" id="teammate-1">
-              <div class="teammate-header">
-                <span>Coéquipier 1</span>
-                <button type="button" class="remove-teammate" data-id="1">Retirer</button>
-              </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Nom</label>
-                  <input type="text" name="teammate_nom_1" placeholder="Nom du coéquipier" />
-                </div>
-                <div class="form-group">
-                  <label>Prénom</label>
-                  <input type="text" name="teammate_prenom_1" placeholder="Prénom du coéquipier" />
-                </div>
-              </div>
-            </div>
-
-            <div class="teammate-entry hidden" id="teammate-2">
-              <div class="teammate-header">
-                <span>Coéquipier 2</span>
-                <button type="button" class="remove-teammate" data-id="2">Retirer</button>
-              </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Nom</label>
-                  <input type="text" name="teammate_nom_2" placeholder="Nom du coéquipier" />
-                </div>
-                <div class="form-group">
-                  <label>Prénom</label>
-                  <input type="text" name="teammate_prenom_2" placeholder="Prénom du coéquipier" />
-                </div>
-              </div>
-            </div>
-
-            <button type="button" class="btn-add-teammate" id="add-teammate">
-              + Ajouter un coéquipier
-            </button>
-          </div>
-
-          <div class="form-block payment-block">
-            <h3 class="form-block-title">Récapitulatif du paiement</h3>
-            <div class="payment-summary">
-              <div class="payment-line">
-                <span id="payment-label">Participation solo</span>
-                <span id="payment-amount">1 000 XOF</span>
-              </div>
-              <div class="payment-divider"></div>
-              <div class="payment-total-line">
-                <span>Total</span>
-                <span id="payment-total" class="total-amount">1 000 XOF</span>
-              </div>
-            </div>
-
-            <div class="payment-methods">
-              <p class="payment-methods-label">Mode de paiement</p>
-              <div class="payment-options">
-                <label class="payment-option">
-                  <input type="radio" name="payment_method" value="mobile_money" checked />
-                  <span class="option-box">
-                    <span class="option-name">Mobile Money</span>
-                    <span class="option-desc">Orange / MTN / Wave</span>
-                  </span>
-                </label>
-                <label class="payment-option">
-                  <input type="radio" name="payment_method" value="cash" />
-                  <span class="option-box">
-                    <span class="option-name">Espèces</span>
-                    <span class="option-desc">Paiement sur place</span>
-                  </span>
-                </label>
-              </div>
-            </div>
-
-            <div class="mobile-money-fields" id="mobile-money-fields">
-              <div class="form-group">
-                <label for="phone_payment">Numéro de paiement</label>
-                <input type="tel" id="phone_payment" name="phone_payment" placeholder="+225 00 00 00 00 00" />
-              </div>
-              <div class="form-group">
-                <label for="transaction_id">Code de transaction <span class="optional">(après paiement)</span></label>
-                <input type="text" id="transaction_id" name="transaction_id" placeholder="Ex: TXN-12345678" />
-              </div>
-            </div>
-          </div>
-
-          <div class="form-submit">
-            <button type="submit" class="btn-submit" id="submit-btn">
-              <span class="submit-text">Confirmer l'inscription</span>
-              <span class="submit-loader hidden"></span>
-            </button>
-          </div>
-
-        </form>
-      </div>
-    </div>
-  </section>
-
-  <div class="modal-overlay hidden" id="confirmation-modal">
-    <div class="modal-box">
-      <div class="modal-check">
-        <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle class="check-circle" cx="26" cy="26" r="25" stroke="currentColor" stroke-width="2"/>
-          <path class="check-path" d="M14 26L22 34L38 18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <h2>Inscription confirmée</h2>
-      <p id="modal-message">Votre place est réservée. Un email de confirmation vous sera envoyé.</p>
-      <div class="modal-ref">
-        Référence : <span id="modal-ref">--</span>
-      </div>
-      <button class="btn-primary" onclick="closeModal()">Retour à l'accueil</button>
+      <span class="login-error" id="login-error"></span>
+      <button class="login-btn" id="login-btn" onclick="doLogin()">Accéder au tableau de bord</button>
     </div>
   </div>
 
-  <footer class="footer">
-    <div class="footer-inner">
-      <div class="footer-brand">HACKATHON L1</div>
-      <div class="footer-org">Organisé par <a href="https://elielposter.com/" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid currentColor;padding-bottom:1px;">Eliel Poster</a> x le BDE MIAGE-GI</div>
-      <div class="footer-links">
-        
+  <div class="wakeup-screen" id="wakeup-screen">
+    <div class="wakeup-spinner"></div>
+    <div class="wakeup-text">
+      <strong>Connexion au serveur...</strong>
+      Le serveur se réveille, patientez quelques secondes
+      <div class="wakeup-dots" style="margin-top:12px">
+        <span></span><span></span><span></span>
       </div>
     </div>
-  </footer>
+  </div>
 
-  <script>window.BACKEND_URL = 'https://hark-inst.onrender.com';</script>
-  <script src="app.js"></script>
+  <div class="admin-app" id="admin-app">
+    <nav class="admin-nav">
+      <div class="brand">ADMIN <span>HACKATHON L1</span></div>
+      <div class="admin-nav-right">
+        <a href="/">Retour au site</a>
+        <button class="logout-btn" onclick="doLogout()">Déconnexion</button>
+      </div>
+    </nav>
+
+    <main class="admin-main">
+      <div class="admin-header">
+        <div>
+          <h1>Tableau de bord</h1>
+          <p>Gestion des inscriptions — Hackathon L1 · Langues Locales 2025</p>
+        </div>
+        <div class="header-btns">
+          <button class="refresh-btn" onclick="loadData()">Actualiser</button>
+          <button class="export-btn" onclick="exportCSV()">Exporter CSV</button>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="s-label">Inscrits total</div>
+          <div class="s-value" id="stat-total">—</div>
+          <div class="s-sub">participants enregistrés</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-label">Équipes</div>
+          <div class="s-value" id="stat-teams">—</div>
+          <div class="s-sub">inscriptions en groupe</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-label">Solos</div>
+          <div class="s-value" id="stat-solos">—</div>
+          <div class="s-sub">inscriptions individuelles</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-label">Revenus</div>
+          <div class="s-value" id="stat-revenue">—</div>
+          <div class="s-sub">XOF collectés</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="section-label">Toutes les inscriptions</div>
+        <input type="text" class="search-bar" id="search-input"
+          placeholder="Rechercher un participant..." oninput="filterTable()" />
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Référence</th>
+              <th>Nom complet</th>
+              <th>Email</th>
+              <th>Mode</th>
+              <th>Coéquipiers</th>
+              <th>Paiement</th>
+              <th>Montant</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            <tr><td colspan="8"><div class="empty-state"><h3>Chargement...</h3></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
   <script>
-    (function keepAlive() {
-      const ping = () => fetch(window.BACKEND_URL + '/health', { method: 'GET' }).catch(() => {});
-      ping();
-      setInterval(ping, 14 * 60 * 1000);
-    })();
+    const BACKEND_URL = 'https://hark-inst.onrender.com';
+    const ADMIN_PASSWORD = 'hackl12025';
+    let allData = [];
+
+    function setEl(id, val) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val;
+    }
+
+    function doLogin() {
+      const val = document.getElementById('login-input').value;
+      const errEl = document.getElementById('login-error');
+
+      if (val !== ADMIN_PASSWORD) {
+        errEl.textContent = 'Mot de passe incorrect.';
+        document.getElementById('login-input').select();
+        return;
+      }
+
+      errEl.textContent = '';
+      document.getElementById('login-btn').disabled = true;
+      sessionStorage.setItem('admin_auth', '1');
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('wakeup-screen').style.display = 'flex';
+      wakeUpAndLoad();
+    }
+
+    function doLogout() {
+      sessionStorage.removeItem('admin_auth');
+      document.getElementById('admin-app').style.display = 'none';
+      document.getElementById('login-screen').style.display = 'flex';
+      document.getElementById('login-input').value = '';
+      document.getElementById('login-btn').disabled = false;
+    }
+
+    async function wakeUpAndLoad() {
+      let attempts = 0;
+
+      while (attempts < 15) {
+        try {
+          const res = await fetch(`${BACKEND_URL}/health`, {
+            signal: AbortSignal.timeout(6000)
+          });
+          if (res.ok) {
+            document.getElementById('wakeup-screen').style.display = 'none';
+            document.getElementById('admin-app').style.display = 'block';
+            await loadData();
+            setInterval(() => fetch(BACKEND_URL + '/health').catch(() => {}), 14 * 60 * 1000);
+            return;
+          }
+        } catch {}
+        attempts++;
+        await new Promise(r => setTimeout(r, 3000));
+      }
+
+      document.getElementById('wakeup-screen').innerHTML = `
+        <div style="text-align:center;padding:24px">
+          <div style="font-family:var(--font-display);font-size:32px;margin-bottom:12px">Serveur indisponible</div>
+          <div style="font-family:var(--font-mono);font-size:13px;color:var(--gray-4);margin-bottom:24px">
+            Impossible de contacter le backend Render.
+          </div>
+          <button onclick="location.reload()"
+            style="background:var(--accent);color:#fff;border:none;padding:12px 28px;border-radius:4px;cursor:pointer;font-size:14px;font-family:var(--font-body);font-weight:600">
+            Réessayer
+          </button>
+        </div>`;
+    }
+
+    async function loadData() {
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/admin/registrations`);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        allData = data.registrations || [];
+        setEl('stat-total', data.total ?? 0);
+        setEl('stat-teams', data.groups ?? 0);
+        setEl('stat-solos', data.solos ?? 0);
+        setEl('stat-revenue', (data.revenue || 0).toLocaleString('fr-FR'));
+        renderTable(allData);
+      } catch (err) {
+        console.error('Erreur chargement:', err.message);
+        renderTable([]);
+      }
+    }
+
+    function renderTable(rows) {
+      const tbody = document.getElementById('table-body');
+      if (!rows.length) {
+        tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><h3>Aucune inscription</h3><p>Les inscriptions apparaîtront ici.</p></div></td></tr>`;
+        return;
+      }
+      tbody.innerHTML = rows.map(r => {
+        const teammates = r.teammates && r.teammates.length
+          ? r.teammates.map(t => `<span>${t.prenom} ${t.nom}</span>`).join('')
+          : '<span style="color:#444">—</span>';
+        const date = new Date(r.created_at).toLocaleDateString('fr-FR', {
+          day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+        });
+        return `<tr>
+          <td class="ref">${r.reference}</td>
+          <td class="name">${r.prenom} ${r.nom}</td>
+          <td>${r.email}</td>
+          <td><span class="badge ${r.mode === 'solo' ? 'badge-solo' : 'badge-groupe'}">${r.mode === 'solo' ? 'Solo' : 'Groupe'}</span></td>
+          <td class="teammates-cell"><div class="teammates-list">${teammates}</div></td>
+          <td><span class="badge ${r.paid ? 'badge-paid' : 'badge-pending'}">${r.paid ? 'Confirmé' : 'En attente'}</span></td>
+          <td class="amount">${(r.total || 0).toLocaleString('fr-FR')} XOF</td>
+          <td>${date}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    function filterTable() {
+      const q = document.getElementById('search-input').value.toLowerCase();
+      renderTable(allData.filter(r =>
+        `${r.nom} ${r.prenom} ${r.email} ${r.reference}`.toLowerCase().includes(q)
+      ));
+    }
+
+    function exportCSV() {
+      if (!allData.length) return alert('Aucune donnée à exporter.');
+      const headers = ['Référence','Nom','Prénom','Email','Téléphone','Mode','Coéquipiers','Paiement','Montant (XOF)','Date'];
+      const rows = allData.map(r => [
+        r.reference, r.nom, r.prenom, r.email, r.tel || '', r.mode,
+        (r.teammates || []).map(t => `${t.prenom} ${t.nom}`).join(' / '),
+        r.paid ? 'Confirmé' : 'En attente', r.total || 0,
+        new Date(r.created_at).toLocaleString('fr-FR')
+      ]);
+      const csv = [headers, ...rows].map(row => row.map(v => `"${v}"`).join(',')).join('\n');
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `inscriptions_hackathon_${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    if (sessionStorage.getItem('admin_auth') === '1') {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('wakeup-screen').style.display = 'flex';
+      wakeUpAndLoad();
+    }
   </script>
 </body>
 </html>
