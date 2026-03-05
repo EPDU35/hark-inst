@@ -1,4 +1,7 @@
 const PRICE_PER_PERSON = 1000;
+const API_URL = window.BACKEND_URL || '';
+const _registeredEmails = new Set();
+let _submitting = false;
 let teammateCount = 1;
 let totalPersons = 1;
 
@@ -113,10 +116,6 @@ function validateForm() {
   return valid;
 }
 
-function generateRef() {
-  return 'HCK-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-}
-
 function openModal(ref, name) {
   document.getElementById('modal-ref').textContent = ref;
   document.getElementById('modal-message').textContent =
@@ -134,11 +133,24 @@ function closeModal() {
 document.getElementById('registrationForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   if (!validateForm()) return;
+  if (_submitting) return;
+
+  const emailVal = document.getElementById('email').value.trim().toLowerCase();
+
+  if (_registeredEmails.has(emailVal)) {
+    const emailEl = document.getElementById('email');
+    const errEl = document.getElementById('err-email');
+    emailEl.classList.add('error');
+    errEl.textContent = 'Cette adresse email est déjà inscrite.';
+    emailEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
 
   const submitBtn = document.getElementById('submit-btn');
   const submitText = submitBtn.querySelector('.submit-text');
   const loader = submitBtn.querySelector('.submit-loader');
 
+  _submitting = true;
   submitBtn.disabled = true;
   submitText.classList.add('hidden');
   loader.classList.remove('hidden');
@@ -162,7 +174,7 @@ document.getElementById('registrationForm').addEventListener('submit', async (e)
   const payload = {
     nom: document.getElementById('nom').value.trim(),
     prenom: document.getElementById('prenom').value.trim(),
-    email: document.getElementById('email').value.trim(),
+    email: emailVal,
     tel: document.getElementById('tel').value.trim(),
     mode,
     teammates,
@@ -173,7 +185,7 @@ document.getElementById('registrationForm').addEventListener('submit', async (e)
   };
 
   try {
-    const res = await fetch('/api/register', {
+    const res = await fetch(`${API_URL}/api/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -182,14 +194,22 @@ document.getElementById('registrationForm').addEventListener('submit', async (e)
     const data = await res.json();
 
     if (res.ok) {
+      _registeredEmails.add(emailVal);
       openModal(data.reference, payload.prenom);
+    } else if (res.status === 409) {
+      _registeredEmails.add(emailVal);
+      const emailEl = document.getElementById('email');
+      const errEl = document.getElementById('err-email');
+      emailEl.classList.add('error');
+      errEl.textContent = 'Cette adresse email est déjà inscrite.';
+      emailEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } else {
       alert(data.error || 'Une erreur est survenue. Veuillez réessayer.');
     }
   } catch {
-    const ref = generateRef();
-    openModal(ref, payload.prenom);
+    alert('Impossible de contacter le serveur. Vérifiez votre connexion et réessayez.');
   } finally {
+    _submitting = false;
     submitBtn.disabled = false;
     submitText.classList.remove('hidden');
     loader.classList.add('hidden');
