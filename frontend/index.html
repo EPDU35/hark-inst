@@ -271,5 +271,12 @@
 
   <script>window.BACKEND_URL = 'https://hark-inst.onrender.com';</script>
   <script src="app.js"></script>
+  <script>
+    (function keepAlive() {
+      const ping = () => fetch(window.BACKEND_URL + '/health', { method: 'GET' }).catch(() => {});
+      ping();
+      setInterval(ping, 14 * 60 * 1000);
+    })();
+  </script>
 </body>
 </html>
