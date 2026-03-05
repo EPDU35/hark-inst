@@ -10,6 +10,24 @@ const DATA_FILE = path.join(DATA_DIR, 'hackathon.json');
 
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
+const ALLOWED_ORIGINS = [
+  'https://hark-inst.vercel.app',
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (!origin || ALLOWED_ORIGINS.includes(origin) || ALLOWED_ORIGINS.includes('*')) {
+    res.setHeader('Access-Control-Allow-Origin', origin || '*');
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
+});
+
+app.use(express.json());
+
 function readDB() {
   try { return JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8')); }
   catch { return { registrations: [] }; }
@@ -25,9 +43,6 @@ function generateRef(existing) {
   while (existing.includes(ref));
   return ref;
 }
-
-app.use(express.json());
-app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
 app.post('/api/register', (req, res) => {
   const { nom, prenom, email, tel, mode, teammates, payment_method, phone_payment, transaction_id, total } = req.body;
@@ -63,7 +78,7 @@ app.post('/api/register', (req, res) => {
   });
 
   writeDB(db);
-  res.status(201).json({ success: true, reference, message: 'Inscription enregistree avec succes.' });
+  res.status(201).json({ success: true, reference });
 });
 
 app.get('/api/admin/registrations', (req, res) => {
@@ -94,12 +109,8 @@ app.patch('/api/admin/registrations/:ref/paid', (req, res) => {
   res.json({ success: true });
 });
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
-});
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 app.listen(PORT, () => {
-  console.log('\n  Hackathon L1 - Serveur OK');
-  console.log('  Site  : http://localhost:' + PORT);
-  console.log('  Admin : http://localhost:' + PORT + '/admin.html\n');
+  console.log('Hackathon L1 - Backend OK sur le port ' + PORT);
 });
